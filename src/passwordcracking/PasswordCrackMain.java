@@ -1,11 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package passwordcracking;
+
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 
 /**
  *
@@ -13,19 +10,18 @@ import java.util.concurrent.Executors;
  */
 public class PasswordCrackMain {
 
+    private static final int SLAVE_COUNT = 3;
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        //we create and run threads here
-        Runnable master = new Master();
-        Runnable slave1 = new Slave();
-        Runnable slave2 = new Slave();
-        
+    public static void main(String[] args) throws IOException {
         ExecutorService pool = Executors.newCachedThreadPool();
-        pool.execute(master);
-        pool.execute(slave1);
-        pool.execute(slave2);
+        Buffer buffer = new Buffer();
+        pool.execute(new Master(buffer));
+        for (int i = 0; i < SLAVE_COUNT; i++) {
+            pool.execute(new Slave());
+        }
         pool.shutdown();
     }
 }
