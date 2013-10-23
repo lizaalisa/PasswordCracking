@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,12 +16,10 @@ import java.util.logging.Logger;
  */
 public class Master implements Runnable {
 
-    private BufferedReader dictionary = null;
-    private Queue<String> allDictionaryEntries = null;
-    private String[] allEntries;
+    private static List<String> dictionaryEntriesList = null;
 
-    public Master(Buffer buffer) {
-        allDictionaryEntries = new LinkedList<String>();
+    public Master() throws IOException {
+        dictionaryEntriesList = readDictionary();
     }
 
     @Override
@@ -37,26 +36,38 @@ public class Master implements Runnable {
         }
     }
 
-    private void readDictionary() throws IOException, FileNotFoundException {
+    private List<String> readDictionary() throws IOException, FileNotFoundException {
+        List<String> list = new LinkedList<String>();
         FileReader fileReader = new FileReader("webster-dictionary.txt");
         final BufferedReader dictionary = new BufferedReader(fileReader);
-        int i = 0;
         while (true) {
             final String dictionaryEntry = dictionary.readLine();
-            allDictionaryEntries.add(dictionaryEntry);
-            allEntries[i] = dictionaryEntry;
-            i++;
+            list.add(dictionaryEntry);
             if (dictionaryEntry == null) {
                 break;
             }
         }
+        return list;
     }
 
-    public Queue<String> getAllDictionaryEntries() {
-        return allDictionaryEntries;
-    }
+    public static List<String> getSubList(int subListNumber) {
+        int partSize1 = dictionaryEntriesList.size() / 3;
+        int partSize2 = (dictionaryEntriesList.size() - partSize1) / 2;
+        List<String> subList1 = dictionaryEntriesList.subList(0, partSize1 - 1);
+        List<String> subList2 = dictionaryEntriesList.subList(partSize1, partSize1 + partSize2 - 1);
+        List<String> subList3 = dictionaryEntriesList.subList(partSize1 + partSize2, dictionaryEntriesList.size());
+        List<String> value = null;
+        if (subListNumber == 1) {
+            value = subList1;
+        }
+        if (subListNumber == 2) {
+            value = subList2;
+        }
+        if (subListNumber == 3) {
+            value = subList3;
+        }
 
-    public String[] getAllEntries() {
-        return allEntries;
+        return value;
+
     }
 }
